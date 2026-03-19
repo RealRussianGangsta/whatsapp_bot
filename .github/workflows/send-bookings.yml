@@ -3,7 +3,7 @@ name: Send WhatsApp bookings
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 1 * * *"
+    - cron: "17 1 * * *"
 
 jobs:
   run-script:
