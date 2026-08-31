@@ -84,17 +84,35 @@ async function main() {
   const base = new Date(Date.now() + DAYS_AHEAD * 24 * 60 * 60 * 1000);
   const { y, m, d } = tzDateParts(base, TZ);
 
-  const timeMin = isoWithOffsetBangkok(y, m, d, 0, 0, 0);
-  const timeMax = isoWithOffsetBangkok(y, m, d, 6, 0, 0);
+  const timeMin1 = isoWithOffsetBangkok(y, m, d, 0, 0, 0);
+const timeMax1 = isoWithOffsetBangkok(y, m, d, 6, 0, 0);
+const timeMin2 = isoWithOffsetBangkok(y, m, d, 15, 0, 0);
+const timeMax2 = isoWithOffsetBangkok(y, m, d, 17, 0, 0);
 
-  const res = await calendar.events.list({
-    calendarId: CALENDAR_ID,
-    timeMin,
-    timeMax,
-    singleEvents: true,
-    orderBy: "startTime",
-    maxResults: 2500,
-  });
+const resEarly = await calendar.events.list({
+  calendarId: CALENDAR_ID,
+  timeMin: timeMin1,
+  timeMax: timeMax1,
+  singleEvents: true,
+  orderBy: "startTime",
+  maxResults: 2500,
+});
+
+const resLate = await calendar.events.list({
+  calendarId: CALENDAR_ID,
+  timeMin: timeMin2,
+  timeMax: timeMax2,
+  singleEvents: true,
+  orderBy: "startTime",
+  maxResults: 2500,
+});
+
+// Combine both results into final res with the same structure
+const res = {
+  data: {
+    items: [...resEarly.data.items, ...resLate.data.items]
+  }
+};
 
   const events = (res.data.items ?? []).filter((ev) => {
   const startDateTime = ev.start?.dateTime;
