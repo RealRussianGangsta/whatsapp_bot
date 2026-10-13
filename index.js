@@ -84,44 +84,32 @@ async function main() {
   const base = new Date(Date.now() + DAYS_AHEAD * 24 * 60 * 60 * 1000);
   const { y, m, d } = tzDateParts(base, TZ);
 
-  const timeMin1 = isoWithOffsetBangkok(y, m, d, 0, 0, 0);
-const timeMax1 = isoWithOffsetBangkok(y, m, d, 6, 0, 0);
-const timeMin2 = isoWithOffsetBangkok(y, m, d, 15, 0, 0);
-const timeMax2 = isoWithOffsetBangkok(y, m, d, 17, 0, 0);
+ const ranges = [
+  [0, 3],
+  [4, 6],
+  [15, 17],
+];
 
-const resEarly = await calendar.events.list({
-  calendarId: CALENDAR_ID,
-  timeMin: timeMin1,
-  timeMax: timeMax1,
-  singleEvents: true,
-  orderBy: "startTime",
-  maxResults: 2500,
-});
+const results = await Promise.all(
+  ranges.map(([startHour, endHour]) =>
+    calendar.events.list({
+      calendarId: CALENDAR_ID,
+      timeMin: isoWithOffsetBangkok(y, m, d, startHour, 0, 0),
+      timeMax: isoWithOffsetBangkok(y, m, d, endHour, 0, 0),
+      singleEvents: true,
+      orderBy: "startTime",
+      maxResults: 2500,
+    })
+  )
+);
 
-const resLate = await calendar.events.list({
-  calendarId: CALENDAR_ID,
-  timeMin: timeMin2,
-  timeMax: timeMax2,
-  singleEvents: true,
-  orderBy: "startTime",
-  maxResults: 2500,
-});
-
-// Combine both results into final res with the same structure
 const res = {
   data: {
-    items: [...resEarly.data.items, ...resLate.data.items]
+    items: results.flatMap(result => result.data.items ?? [])
   }
 };
 
-  const events = (res.data.items ?? []).filter((ev) => {
-  const startDateTime = ev.start?.dateTime;
-  if (!startDateTime) return true;
-
-  const hour = new Date(startDateTime).getHours();
-  return hour !== 3;
-});
-
+const events = res.data.items;
   console.log(`Events found: ${events.length}`);
 
   function cleanSummary(s) {
