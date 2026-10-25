@@ -38,7 +38,7 @@ await auth.authorize();
 const calendar = google.calendar({ version: "v3", auth });
 
 const TZ = "Asia/Bangkok";
-const DAYS_AHEAD = 6;
+const DAYS_AHEAD = 7;
 
 // получить Date-объект для "YYYY-MM-DD" в тайзоне TZ
 function tzDateParts(date, timeZone) {
