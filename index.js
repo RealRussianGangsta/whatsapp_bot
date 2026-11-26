@@ -86,7 +86,6 @@ async function main() {
 
  const ranges = [
   [0, 3],
-  [4, 6],
   [15, 17],
 ];
 
