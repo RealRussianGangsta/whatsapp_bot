@@ -85,8 +85,7 @@ async function main() {
   const { y, m, d } = tzDateParts(base, TZ);
 
  const ranges = [
-  [0, 3],
-  [15, 17],
+  [0, 6]
 ];
 
 const results = await Promise.all(
